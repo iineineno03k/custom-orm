@@ -19,9 +19,15 @@ public class FieldMetadata {
         this.isId = field.isAnnotationPresent(Id.class);
         
         Column column = field.getAnnotation(Column.class);
-        this.columnName = column != null ? column.name() : field.getName();
-        this.nullable = column == null || column.nullable();
-        this.unique = column != null && column.unique();
+        if (column != null) {
+            this.columnName = column.name().isEmpty() ? field.getName() : column.name();
+            this.nullable = column.nullable();
+            this.unique = column.unique();
+        } else {
+            this.columnName = field.getName();
+            this.nullable = true;
+            this.unique = false;
+        }
     }
 
     public String getSqlType() {
