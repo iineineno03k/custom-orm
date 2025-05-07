@@ -1,39 +1,57 @@
 package com.iineineno03k.orm.metadata;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import com.iineineno03k.orm.annotation.Column;
+import com.iineineno03k.orm.annotation.Id;
 
 public class FieldMetadata {
     private final Field field;
-    private final String columnName;
     private final boolean isId;
+    private final String columnName;
     private final boolean nullable;
     private final boolean unique;
 
     public FieldMetadata(Field field) {
         this.field = field;
-        this.isId = field.isAnnotationPresent(com.iineineno03k.orm.annotation.Id.class);
-        this.columnName = resolveColumnName(field);
+        this.isId = field.isAnnotationPresent(Id.class);
         
-        if (field.isAnnotationPresent(com.iineineno03k.orm.annotation.Column.class)) {
-            com.iineineno03k.orm.annotation.Column column = field.getAnnotation(com.iineineno03k.orm.annotation.Column.class);
-            this.nullable = column.nullable();
-            this.unique = column.unique();
-        } else {
-            this.nullable = true;
-            this.unique = false;
-        }
+        Column column = field.getAnnotation(Column.class);
+        this.columnName = column != null ? column.name() : field.getName();
+        this.nullable = column == null || column.nullable();
+        this.unique = column != null && column.unique();
     }
 
-    private String resolveColumnName(Field field) {
-        // @Columnアノテーションのname属性を優先
-        if (field.isAnnotationPresent(com.iineineno03k.orm.annotation.Column.class)) {
-            String name = field.getAnnotation(com.iineineno03k.orm.annotation.Column.class).name();
-            if (!name.isEmpty()) {
-                return name;
-            }
+    public String getSqlType() {
+        Class<?> type = field.getType();
+        
+        if (type == Long.class || type == long.class) {
+            return "BIGINT";
+        } else if (type == String.class) {
+            return "VARCHAR(255)";
+        } else if (type == boolean.class || type == Boolean.class) {
+            return "BOOLEAN";
+        } else if (type == Integer.class || type == int.class) {
+            return "INTEGER";
+        } else if (type == Double.class || type == double.class) {
+            return "DOUBLE";
+        } else if (type == Float.class || type == float.class) {
+            return "FLOAT";
+        } else if (type == Short.class || type == short.class) {
+            return "SMALLINT";
+        } else if (type == Byte.class || type == byte.class) {
+            return "TINYINT";
+        } else if (type == LocalDate.class) {
+            return "DATE";
+        } else if (type == LocalTime.class) {
+            return "TIME";
+        } else if (type == LocalDateTime.class) {
+            return "TIMESTAMP";
         }
-        // デフォルトはフィールド名をスネークケースに変換
-        return field.getName().toLowerCase();
+        
+        throw new IllegalArgumentException("Unsupported type: " + type.getName());
     }
 
     public Field getField() {
