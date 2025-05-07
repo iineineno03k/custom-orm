@@ -18,20 +18,6 @@ public class MetadataProcessor {
             throw new IllegalArgumentException("Class " + entityClass.getName() + " is not an entity");
         }
 
-        return metadataCache.computeIfAbsent(entityClass, this::createEntityMetadata);
-    }
-
-    private EntityMetadata createEntityMetadata(Class<?> entityClass) {
-        EntityMetadata metadata = new EntityMetadata(entityClass);
-
-        for (Field field : entityClass.getDeclaredFields()) {
-            metadata.addFieldMetadata(field);
-        }
-
-        if (metadata.getIdField() == null) {
-            throw new IllegalArgumentException("Entity " + entityClass.getName() + " must have an @Id field");
-        }
-
-        return metadata;
+        return metadataCache.computeIfAbsent(entityClass, EntityMetadata::new);
     }
 } 
