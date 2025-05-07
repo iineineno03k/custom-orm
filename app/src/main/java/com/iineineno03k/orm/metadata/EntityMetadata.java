@@ -17,6 +17,25 @@ public class EntityMetadata {
         this.entityClass = entityClass;
         this.tableName = resolveTableName(entityClass);
         this.fieldMetadataMap = new HashMap<>();
+        
+        // フィールドの処理
+        for (Field field : entityClass.getDeclaredFields()) {
+            FieldMetadata metadata = new FieldMetadata(field);
+            fieldMetadataMap.put(field.getName(), metadata);
+
+            if (field.isAnnotationPresent(Id.class)) {
+                if (idField != null) {
+                    // 複数の@Idフィールドがある場合は最初のものを使用
+                    continue;
+                }
+                idField = metadata;
+            }
+        }
+
+        // @Idフィールドの存在チェック
+        if (idField == null) {
+            throw new IllegalArgumentException("Entity " + entityClass.getName() + " must have an @Id field");
+        }
     }
 
     private String resolveTableName(Class<?> entityClass) {
@@ -28,16 +47,8 @@ public class EntityMetadata {
             }
         }
         // デフォルトはクラス名をスネークケースに変換
-        return entityClass.getSimpleName().toLowerCase();
-    }
-
-    public void addFieldMetadata(Field field) {
-        FieldMetadata metadata = new FieldMetadata(field);
-        fieldMetadataMap.put(field.getName(), metadata);
-        
-        if (field.isAnnotationPresent(Id.class)) {
-            idField = metadata;
-        }
+        String className = entityClass.getSimpleName();
+        return className.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
     }
 
     public Class<?> getEntityClass() {
