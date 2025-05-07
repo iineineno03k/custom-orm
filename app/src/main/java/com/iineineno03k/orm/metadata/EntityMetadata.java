@@ -1,7 +1,7 @@
 package com.iineineno03k.orm.metadata;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.iineineno03k.orm.annotation.Id;
@@ -16,7 +16,7 @@ public class EntityMetadata {
     public EntityMetadata(Class<?> entityClass) {
         this.entityClass = entityClass;
         this.tableName = resolveTableName(entityClass);
-        this.fieldMetadataMap = new HashMap<>();
+        this.fieldMetadataMap = new LinkedHashMap<>();
         
         // フィールドの処理
         for (Field field : entityClass.getDeclaredFields()) {
@@ -51,6 +51,37 @@ public class EntityMetadata {
         return className.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
     }
 
+    public String generateCreateTableSql() {
+        StringBuilder sql = new StringBuilder();
+        sql.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (\n");
+
+        boolean first = true;
+        for (FieldMetadata metadata : fieldMetadataMap.values()) {
+            if (!first) {
+                sql.append(",\n");
+            }
+            first = false;
+
+            sql.append("    ")
+               .append(metadata.getColumnName())
+               .append(" ")
+               .append(metadata.getSqlType());
+
+            if (metadata.isId()) {
+                sql.append(" PRIMARY KEY");
+            }
+            if (!metadata.isNullable()) {
+                sql.append(" NOT NULL");
+            }
+            if (metadata.isUnique()) {
+                sql.append(" UNIQUE");
+            }
+        }
+
+        sql.append("\n)");
+        return sql.toString();
+    }
+
     public Class<?> getEntityClass() {
         return entityClass;
     }
@@ -66,4 +97,4 @@ public class EntityMetadata {
     public Map<String, FieldMetadata> getFieldMetadataMap() {
         return fieldMetadataMap;
     }
-} 
+}

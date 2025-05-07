@@ -144,4 +144,126 @@ public class EntityMetadataTest {
             assertNotNull(metadata.getIdField());
         }
     }
+
+    @Nested
+    class CreateTableSqlTests {
+        @Test
+        void shouldGenerateBasicCreateTableSql() {
+            @Entity
+            class BasicEntity {
+                @Id
+                private Long id;
+            }
+
+            EntityMetadata metadata = new EntityMetadata(BasicEntity.class);
+            String expected = """
+                CREATE TABLE IF NOT EXISTS basic_entity (
+                    id BIGINT PRIMARY KEY
+                )""";
+
+            assertEquals(expected, metadata.generateCreateTableSql());
+        }
+
+        @Test
+        void shouldGenerateCreateTableSqlWithAllConstraints() {
+            @Entity
+            class ComplexEntity {
+                @Id
+                private Long id;
+
+                @Column(nullable = false, unique = true)
+                private String name;
+
+                @Column(nullable = false)
+                private Integer age;
+
+                @Column(unique = true)
+                private String email;
+            }
+
+            EntityMetadata metadata = new EntityMetadata(ComplexEntity.class);
+            String expected = """
+                CREATE TABLE IF NOT EXISTS complex_entity (
+                    id BIGINT PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL UNIQUE,
+                    age INTEGER NOT NULL,
+                    email VARCHAR(255) UNIQUE
+                )""";
+
+            assertEquals(expected, metadata.generateCreateTableSql());
+        }
+
+        @Test
+        void shouldGenerateCreateTableSqlWithCustomTableName() {
+            @Entity
+            @Table(name = "custom_users")
+            class UserEntity {
+                @Id
+                private Long id;
+
+                @Column(nullable = false)
+                private String username;
+            }
+
+            EntityMetadata metadata = new EntityMetadata(UserEntity.class);
+            String expected = """
+                CREATE TABLE IF NOT EXISTS custom_users (
+                    id BIGINT PRIMARY KEY,
+                    username VARCHAR(255) NOT NULL
+                )""";
+
+            assertEquals(expected, metadata.generateCreateTableSql());
+        }
+
+        @Test
+        void shouldGenerateCreateTableSqlWithAllFieldTypes() {
+            @Entity
+            class AllTypesEntity {
+                @Id
+                private Long id;
+
+                private String text;
+                private Integer number;
+                private Double decimal;
+                private Boolean flag;
+            }
+
+            EntityMetadata metadata = new EntityMetadata(AllTypesEntity.class);
+            String expected = """
+                CREATE TABLE IF NOT EXISTS all_types_entity (
+                    id BIGINT PRIMARY KEY,
+                    text VARCHAR(255),
+                    number INTEGER,
+                    decimal DOUBLE,
+                    flag BOOLEAN
+                )""";
+
+            assertEquals(expected, metadata.generateCreateTableSql());
+        }
+
+        @Test
+        void shouldGenerateCreateTableSqlWithCustomColumnNames() {
+            @Entity
+            class CustomColumnEntity {
+                @Id
+                private Long id;
+
+                @Column(name = "user_name")
+                private String name;
+
+                @Column(name = "user_age")
+                private Integer age;
+            }
+
+            EntityMetadata metadata = new EntityMetadata(CustomColumnEntity.class);
+            String expected = """
+                CREATE TABLE IF NOT EXISTS custom_column_entity (
+                    id BIGINT PRIMARY KEY,
+                    user_name VARCHAR(255),
+                    user_age INTEGER
+                )""";
+
+            assertEquals(expected, metadata.generateCreateTableSql());
+        }
+    }
 } 
