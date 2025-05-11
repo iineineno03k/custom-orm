@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'jacoco'
 }
 
 repositories {
@@ -27,6 +28,20 @@ application {
     mainClass = 'com.iineineno03k.orm.App'
 }
 
+// JaCoCoの設定
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    
+    dependsOn test
+}
+
 test {
     useJUnitPlatform()
     testLogging {
@@ -34,4 +49,12 @@ test {
         showStandardStreams = true
         exceptionFormat = 'full'
     }
+    
+    // JUnit XMLレポートを有効化
+    reports {
+        junitXml.enabled = true
+        html.enabled = true
+    }
+    
+    finalizedBy jacocoTestReport
 }
