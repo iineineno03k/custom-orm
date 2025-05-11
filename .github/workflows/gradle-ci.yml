@@ -26,7 +26,7 @@ jobs:
       run: ./gradlew build
 
     - name: Upload test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3  # Updated version
       if: always()
       with:
         name: test-results
