@@ -28,9 +28,9 @@ application {
     mainClass = 'com.iineineno03k.orm.App'
 }
 
-// JaCoCoの設定
+// JaCoCoの設定 - 最新バージョンを使用してJava 21をサポート
 jacoco {
-    toolVersion = "0.8.8"
+    toolVersion = "0.8.11"
 }
 
 jacocoTestReport {
@@ -52,8 +52,8 @@ test {
     
     // JUnit XMLレポートを有効化
     reports {
-        junitXml.enabled = true
-        html.enabled = true
+        junitXml.required = true
+        html.required = true
     }
     
     finalizedBy jacocoTestReport
