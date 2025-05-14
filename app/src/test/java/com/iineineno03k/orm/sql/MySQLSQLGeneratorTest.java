@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.iineineno03k.orm.testentity.TestEntity;
 
 /**
- * MySQLSQLGeneratorのテストクラス
+ * MySQLSQLGeneratorのテストクラス.
  */
 @DisplayName("MySQLSQLGenerator のテスト")
 public class MySQLSQLGeneratorTest {
