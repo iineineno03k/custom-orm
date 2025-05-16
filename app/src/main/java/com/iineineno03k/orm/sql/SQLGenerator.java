@@ -56,4 +56,12 @@ public interface SQLGenerator {
      * @return 生成されたCREATE TABLE文
      */
     String createTableSQL(Class<?> entityClass);
+    
+    /**
+     * エンティティクラスから全件取得用のSELECT文を生成する
+     * 
+     * @param entityClass エンティティクラス
+     * @return 生成されたSQL
+     */
+    String createSelectAllSQL(Class<?> entityClass);
 } 

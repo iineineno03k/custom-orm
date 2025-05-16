@@ -36,7 +36,7 @@ public class OracleSQLGeneratorTest {
         @DisplayName("正しいSELECT SQLを生成する")
         void shouldCreateCorrectSelectSQL() {
             String sql = generator.createSelectSQL(TestEntity.class, "id");
-            assertEquals("SELECT * FROM test_entity WHERE id = :1", sql);
+            assertEquals("SELECT * FROM test_entities WHERE id = :1", sql);
         }
     }
     
@@ -47,7 +47,7 @@ public class OracleSQLGeneratorTest {
         @DisplayName("正しいINSERT SQLを生成する")
         void shouldCreateCorrectInsertSQL() {
             String sql = generator.createInsertSQL(TestEntity.class);
-            assertEquals("INSERT INTO test_entity (id, name, code, description, active) VALUES (:1, :2, :3, :4, :5)", sql);
+            assertEquals("INSERT INTO test_entities (id, name, code, description, active) VALUES (:1, :2, :3, :4, :5)", sql);
         }
     }
     
@@ -60,7 +60,7 @@ public class OracleSQLGeneratorTest {
             String sql = generator.createUpdateSQL(TestEntity.class, "id");
             
             // Oracleの場合、プレースホルダーは:1, :2...のようになる
-            assertTrue(sql.startsWith("UPDATE test_entity SET"));
+            assertTrue(sql.startsWith("UPDATE test_entities SET"));
             assertTrue(sql.contains("name = :1"));
             assertTrue(sql.contains("code = :2"));
             assertTrue(sql.contains("description = :3"));
@@ -76,7 +76,7 @@ public class OracleSQLGeneratorTest {
         @DisplayName("正しいDELETE SQLを生成する")
         void shouldCreateCorrectDeleteSQL() {
             String sql = generator.createDeleteSQL(TestEntity.class, "id");
-            assertEquals("DELETE FROM test_entity WHERE id = :1", sql);
+            assertEquals("DELETE FROM test_entities WHERE id = :1", sql);
         }
     }
     

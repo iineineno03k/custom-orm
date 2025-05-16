@@ -2,24 +2,36 @@ package com.iineineno03k.orm.sql;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.iineineno03k.orm.annotation.Column;
+import com.iineineno03k.orm.annotation.Entity;
+import com.iineineno03k.orm.annotation.Id;
+import com.iineineno03k.orm.annotation.Table;
 
 /**
- * SQLジェネレーターの抽象基底クラス
- * 共通の実装を提供する
+ * SQLGeneratorの基本的な実装を提供する抽象クラス。
+ * 各データベース固有の実装はこのクラスを拡張する。
  */
 public abstract class AbstractSQLGenerator implements SQLGenerator {
     
     /**
-     * テーブル名を取得する（エンティティクラス名をスネークケースに変換）
+     * エンティティクラスのテーブル名を取得する
      * 
-     * @param entityClass エンティティのクラス
+     * @param entityClass エンティティクラス
      * @return テーブル名
      */
     protected String getTableName(Class<?> entityClass) {
-        String className = entityClass.getSimpleName();
-        // キャメルケースからスネークケースへの変換
-        return camelToSnake(className);
+        if (entityClass.isAnnotationPresent(Table.class)) {
+            Table tableAnnotation = entityClass.getAnnotation(Table.class);
+            return tableAnnotation.name();
+        } else if (entityClass.isAnnotationPresent(Entity.class)) {
+            return entityClass.getSimpleName().toLowerCase();
+        } else {
+            throw new IllegalArgumentException("Class is not an entity: " + entityClass.getName());
+        }
     }
     
     /**
@@ -72,4 +84,48 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
      * @return カンマ区切りのプレースホルダー
      */
     protected abstract String createPlaceholders(int count);
+    
+    /**
+     * フィールドのカラム名を取得する
+     * 
+     * @param field フィールド
+     * @return カラム名
+     */
+    protected String getColumnName(Field field) {
+        if (field.isAnnotationPresent(Column.class)) {
+            Column columnAnnotation = field.getAnnotation(Column.class);
+            if (!columnAnnotation.name().isEmpty()) {
+                return columnAnnotation.name();
+            }
+        }
+        return field.getName().toLowerCase();
+    }
+    
+    /**
+     * エンティティクラスの全フィールドを取得する
+     * 
+     * @param entityClass エンティティクラス
+     * @return フィールドのリスト
+     */
+    protected List<Field> getAllFields(Class<?> entityClass) {
+        return Arrays.asList(entityClass.getDeclaredFields());
+    }
+    
+    /**
+     * エンティティクラスから全件取得用のSELECT文を生成する
+     * 
+     * @param entityClass エンティティクラス
+     * @return 生成されたSQL
+     */
+    @Override
+    public String createSelectAllSQL(Class<?> entityClass) {
+        String tableName = getTableName(entityClass);
+        List<Field> fields = getAllFields(entityClass);
+        
+        String columnList = fields.stream()
+                .map(this::getColumnName)
+                .collect(Collectors.joining(", "));
+                
+        return String.format("SELECT %s FROM %s", columnList, tableName);
+    }
 } 

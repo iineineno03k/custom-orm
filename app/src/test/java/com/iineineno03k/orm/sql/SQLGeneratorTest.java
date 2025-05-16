@@ -19,7 +19,7 @@ public class SQLGeneratorTest {
         String sql = sqlGenerator.createSelectSQL(TestEntity.class, "id");
         
         // Assert
-        assertEquals("SELECT * FROM test_entity WHERE id = ?", sql);
+        assertEquals("SELECT * FROM test_entities WHERE id = ?", sql);
     }
     
     @Test
@@ -31,7 +31,7 @@ public class SQLGeneratorTest {
         String sql = sqlGenerator.createInsertSQL(TestEntity.class);
         
         // Assert
-        assertEquals("INSERT INTO test_entity (id, name, code, description, active) VALUES (?, ?, ?, ?, ?)", sql);
+        assertEquals("INSERT INTO test_entities (id, name, code, description, active) VALUES (?, ?, ?, ?, ?)", sql);
     }
     
     @Test
@@ -43,7 +43,7 @@ public class SQLGeneratorTest {
         String sql = sqlGenerator.createSelectSQL(TestEntity.class, "id");
         
         // Assert
-        assertEquals("SELECT * FROM test_entity WHERE id = $1", sql);
+        assertEquals("SELECT * FROM test_entities WHERE id = $1", sql);
     }
     
     @Test
@@ -55,7 +55,7 @@ public class SQLGeneratorTest {
         String sql = sqlGenerator.createSelectSQL(TestEntity.class, "id");
         
         // Assert
-        assertEquals("SELECT * FROM test_entity WHERE id = :1", sql);
+        assertEquals("SELECT * FROM test_entities WHERE id = :1", sql);
     }
     
     @Test

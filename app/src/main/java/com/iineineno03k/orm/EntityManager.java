@@ -1,7 +1,10 @@
 package com.iineineno03k.orm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.iineineno03k.orm.sql.SQLGenerator;
 import com.iineineno03k.orm.sql.SQLGeneratorFactory;
@@ -9,7 +12,8 @@ import com.iineineno03k.orm.sql.SQLGeneratorFactory;
 public class EntityManager {
     private DatabaseConfig config;
     private SQLGenerator sqlGenerator;
-    private static final Map<Long, Object> storage = new HashMap<>();
+    // クラスごとに別々のストレージを持つようにする
+    private static final Map<Class<?>, Map<Long, Object>> entityStorage = new HashMap<>();
 
     public EntityManager(DatabaseConfig config) {
         this.config = config;
@@ -18,8 +22,12 @@ public class EntityManager {
 
     public void save(Object entity) {
         try {
-            Long id = (Long) entity.getClass().getMethod("getId").invoke(entity);
-            storage.put(id, entity);
+            Class<?> entityClass = entity.getClass();
+            Long id = (Long) entityClass.getMethod("getId").invoke(entity);
+            
+            // エンティティタイプのストレージを取得、なければ作成
+            Map<Long, Object> classStorage = entityStorage.computeIfAbsent(entityClass, k -> new HashMap<>());
+            classStorage.put(id, entity);
             
             // 実際のDBに接続する場合はSQLを発行する
             // String sql = sqlGenerator.createInsertSQL(entity.getClass());
@@ -30,7 +38,13 @@ public class EntityManager {
     }
 
     public <T> T findById(Class<T> entityClass, Long id) {
-        Object entity = storage.get(id);
+        // エンティティタイプのストレージを取得
+        Map<Long, Object> classStorage = entityStorage.get(entityClass);
+        if (classStorage == null) {
+            return null;
+        }
+        
+        Object entity = classStorage.get(id);
         if (entity != null && entityClass.isInstance(entity)) {
             return entityClass.cast(entity);
         }
@@ -40,6 +54,30 @@ public class EntityManager {
         // System.out.println("Generated SQL: " + sql);
         
         return null;
+    }
+    
+    /**
+     * 指定されたエンティティタイプのすべてのインスタンスを取得する
+     * 
+     * @param <T> エンティティの型
+     * @param entityClass エンティティクラス
+     * @return エンティティのリスト
+     */
+    public <T> List<T> findAll(Class<T> entityClass) {
+        // エンティティタイプのストレージを取得
+        Map<Long, Object> classStorage = entityStorage.get(entityClass);
+        if (classStorage == null) {
+            return new ArrayList<>();
+        }
+        
+        // エンティティをリストに変換して返す
+        return classStorage.values().stream()
+                .map(entity -> entityClass.cast(entity))
+                .collect(Collectors.toList());
+        
+        // 実際のDBに接続する場合はSQLを発行する
+        // String sql = sqlGenerator.createSelectAllSQL(entityClass);
+        // System.out.println("Generated SQL: " + sql);
     }
     
     /**

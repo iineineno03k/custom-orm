@@ -36,7 +36,7 @@ public class MySQLSQLGeneratorTest {
         @DisplayName("正しいSELECT SQLを生成する")
         void shouldCreateCorrectSelectSQL() {
             String sql = generator.createSelectSQL(TestEntity.class, "id");
-            assertEquals("SELECT * FROM test_entity WHERE id = ?", sql);
+            assertEquals("SELECT * FROM test_entities WHERE id = ?", sql);
         }
     }
     
@@ -47,7 +47,7 @@ public class MySQLSQLGeneratorTest {
         @DisplayName("正しいINSERT SQLを生成する")
         void shouldCreateCorrectInsertSQL() {
             String sql = generator.createInsertSQL(TestEntity.class);
-            assertEquals("INSERT INTO test_entity (id, name, code, description, active) VALUES (?, ?, ?, ?, ?)", sql);
+            assertEquals("INSERT INTO test_entities (id, name, code, description, active) VALUES (?, ?, ?, ?, ?)", sql);
         }
     }
     
@@ -58,7 +58,7 @@ public class MySQLSQLGeneratorTest {
         @DisplayName("正しいUPDATE SQLを生成する")
         void shouldCreateCorrectUpdateSQL() {
             String sql = generator.createUpdateSQL(TestEntity.class, "id");
-            assertEquals("UPDATE test_entity SET name = ?, code = ?, description = ?, active = ? WHERE id = ?", sql);
+            assertEquals("UPDATE test_entities SET name = ?, code = ?, description = ?, active = ? WHERE id = ?", sql);
         }
     }
     
@@ -69,7 +69,7 @@ public class MySQLSQLGeneratorTest {
         @DisplayName("正しいDELETE SQLを生成する")
         void shouldCreateCorrectDeleteSQL() {
             String sql = generator.createDeleteSQL(TestEntity.class, "id");
-            assertEquals("DELETE FROM test_entity WHERE id = ?", sql);
+            assertEquals("DELETE FROM test_entities WHERE id = ?", sql);
         }
     }
     

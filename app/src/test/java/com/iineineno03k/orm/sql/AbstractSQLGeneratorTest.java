@@ -26,7 +26,7 @@ public class AbstractSQLGeneratorTest {
     @Test
     void shouldGetCorrectTableName() {
         String tableName = generator.getTableNameForTest(TestEntity.class);
-        assertEquals("test_entity", tableName);
+        assertEquals("test_entities", tableName);
     }
     
     @Test
