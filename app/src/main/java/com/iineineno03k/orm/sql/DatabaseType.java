@@ -1,7 +1,7 @@
 package com.iineineno03k.orm.sql;
 
 /**
- * サポートされているデータベースタイプを定義するenum
+ * サポートされているデータベースタイプを定義するenum.
  */
 public enum DatabaseType {
     MYSQL,
