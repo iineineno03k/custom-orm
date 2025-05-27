@@ -23,7 +23,6 @@ public enum DatabaseType {
         try {
             return DatabaseType.valueOf(type.toUpperCase());
         } catch (IllegalArgumentException e) {
-            
             throw new IllegalArgumentException("Unsupported database type: " + type);
         }
     }
